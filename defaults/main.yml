@@ -1,2 +1,13 @@
 ---
 # defaults file for ansible-role-boundary
+airgap: false
+hashicorp_rpm_repo_url: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+hashicorp_gpg_key_url: https://rpm.releases.hashicorp.com/gpg
+trust_repository_certs: true
+install_server: true
+install_agent: false
+enable_service: true
+service_state: started
+bind_addr: "0.0.0.0"
+enable_tls: true
+boundary_enterprise: false

@@ -1,0 +1,82 @@
+---
+###########################################################
+# Add HashiCorp Repository and GPG Key
+###########################################################
+- name: Install HashiCorp Repository
+  ansible.builtin.yum_repository:
+    name: hashicorp
+    description: HashiCorp Repository
+    baseurl: '{{ hashicorp_rpm_repo_url }}'
+    gpgcheck: true
+    gpgkey: '{{ hashicorp_gpg_key_url }}'
+    enabled: true
+    state: present
+- name: Install HashiCorp RPM Key
+  ansible.builtin.rpm_key:
+    key: '{{ hashicorp_gpg_key_url }}'
+    state: present
+    validate_certs: '{{ trust_repository_certs }}'
+
+###########################################################
+# Install Boundary
+###########################################################
+- name: Install HashiCorp Boundary
+  ansible.builtin.dnf:
+    name: boundary
+    state: present
+    validate_certs: '{{ trust_repository_certs }}'
+  when:
+    - not boundary_enterprise
+- name: Install HashiCorp Boundary Enterprise
+  ansible.builtin.dnf:
+    name: boundary-enterprise
+    state: present
+    validate_certs: '{{ trust_repository_certs }}'
+  when:
+    - boundary_enterprise
+
+###########################################################
+# Deploy Basic Server Configuration
+###########################################################
+# - name: Copy Vault Config
+#   ansible.builtin.template:
+#     src: vault.hcl.j2
+#     dest: /etc/vault.d/vault.hcl
+#     backup: true
+#     owner: vault
+#     group: vault
+#     mode: '0644'
+#   when:
+#     - enable_tls
+# - name: Copy No TLS Vault Config
+#   ansible.builtin.template:
+#     src: vault.hcl-notls.j2
+#     dest: /etc/vault.d/vault.hcl
+#     backup: true
+#     owner: vault
+#     group: vault
+#     mode: '0644'
+#   when:
+#     - not enable_tls
+
+###########################################################
+# Adjust Firewall
+###########################################################
+- name: Adjust Host Firewall to Allow Vault Services
+  ansible.posix.firewalld:
+    port: '{{ item }}'
+    permanent: true
+    immediate: true
+    state: enabled
+  loop:
+    - 8200/tcp
+    - 8201/tcp
+
+###########################################################
+# Configure Boundary Service
+###########################################################
+- name: Configure Boundary Service Startup
+  ansible.builtin.service:
+    name: boundary
+    enabled: '{{ enable_service }}'
+    state: '{{ service_state }}'

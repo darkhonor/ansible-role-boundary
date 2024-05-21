@@ -1,2 +1,5 @@
 ---
 # tasks file for ansible-role-boundary
+- name: "Prepare the {{ ansible_facts['distribution'] }} guest operating system."
+  include_tasks: el.yml
+  when: "ansible_facts['distribution'] in ['RedHat', 'CentOS', 'Rocky', 'AlmaLinux', 'OracleLinux']"

@@ -1,38 +1,64 @@
-Role Name
-=========
+# Boundary Server
 
-A brief description of the role goes here.
+This role installs the HashiCorp Boundary server. Variations of the role will
+allow for both server build as well as Boundary Agent deployment.
 
-Requirements
-------------
+## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+There are no pre-requisite requirements for this role.  The variables set below
+will help to localize the installation.
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+The following variables are available in this role.  The default values
+are shown here:
 
-Dependencies
-------------
+```yaml
+airgap: false
+hashicorp_rpm_repo_url: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+hashicorp_gpg_key_url: https://rpm.releases.hashicorp.com/gpg
+trust_repository_certs: true
+enable_service: true
+service_state: started
+bind_addr: "0.0.0.0"
+enable_tls: true
+```
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+## Dependencies
 
-Example Playbook
-----------------
+N/A
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+## Example Playbook
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+Here is an example use of this role in for a system that is Internet-connected:
 
-License
--------
+```yaml
+- name: Install and Configure HashiCorp Boundary
+  become: true
+  gather_facts: true
+  hosts: servers
+  roles:
+    - role: boundary
+```
 
-BSD
+Here is an example for a system that is in an airgap environment:
 
-Author Information
-------------------
+```yaml
+- name: Install and Configure HashiCorp Boundary
+  become: true
+  gather_facts: true
+  hosts: servers
+  roles:
+    - role: boundary
+      airgap: true
+      hashicorp_rpm_repo_url: "https://repo.network.local/hashicorp/"
+      hashicorp_gpg_key_url: "https://repo.network.local/certs/hashicorp.gpg"
+```
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## License
+
+MIT
+
+## Author Information
+
+Alex Ackerman, GitHub @darkhonor
